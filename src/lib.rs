@@ -31,12 +31,17 @@ fn add_one(x: f64) -> f64 {
     x + 1.
 }
 
+// extract : C(x) -> x
+fn extract<T: Clone, V: Clone>(input: &CoMonad<T, V>) -> T {
+    input.value.clone()
+}
+
 /// fmap : (Funcs(x) -> (y)) -> (Funcs(C(x)) -> (C(y)))
 /// fmap as a pure function not associated with the [`CoMonad`] struct
 fn fmap<O: Clone, T: Clone, V: Clone>(func: impl Fn(T) -> O) -> impl Fn(CoMonad<T, V>) -> CoMonad<O, V> {
     move |input: CoMonad<T, V>| {
         CoMonad {
-            value: func(input.extract()),
+            value: func(extract(&input)),
             env: input.env
         }
     }
